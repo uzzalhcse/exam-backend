@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\BillController;
+use App\Http\Controllers\CustomerController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +17,19 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+
+
+Route::post('/auth/login', [AuthController::class, 'login']);
+
+Route::group(['middleware' => ['auth:sanctum'],'prefix'=>'auth'], function () {
+    Route::get('/info', [AuthController::class, 'info']);
+    Route::get('/logout', [AuthController::class, 'logout']);
 });
+
+Route::group(['middleware' => ['auth:api']], function () {
+    Route::apiResource('customer', CustomerController::class);
+    Route::apiResource('bills', BillController::class);
+});
+
+
+Route::get('/my-bills', [BillController::class, 'myBills'])->middleware('auth:customer');
